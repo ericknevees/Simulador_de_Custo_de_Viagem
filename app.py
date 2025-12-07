@@ -7,9 +7,13 @@ import altair as alt
 # --------------------------------------------
 
 def formatar_moeda(valor):
+    # Recebe um número (float/int) e retorna uma string formatada em real brasileiro.
+    # Exemplo: 2100.5 -> 'R$ 2.100,50'
     return f"R$ {valor:,.2f}".replace(",", "X").replace(".", ",").replace("X", ".")
 
 def formatar_numero(valor, sufixo=""):
+    # Formata um número com separador de milhar e decimal no padrão brasileiro
+    # e adiciona um sufixo (por exemplo ' L' para litros).
     return f"{valor:,.2f}".replace(",", "X").replace(".", ",").replace("X", ".") + sufixo
 
 # --------------------------------------------
@@ -17,13 +21,19 @@ def formatar_numero(valor, sufixo=""):
 # --------------------------------------------
 
 def calcular_combustivel(distancia_total, consumo_km_litro, preco_combustivel, num_viajantes):
+    # Calcula litros necessários e custos relativos ao combustível.
+    # Validações básicas: nenhum dos valores pode ser menor ou igual a zero.
     if distancia_total <= 0 or consumo_km_litro <= 0 or preco_combustivel <= 0 or num_viajantes <= 0:
         return None
 
+    # Litros necessários para percorrer a distância total
     litros_necessarios = distancia_total / consumo_km_litro
+    # Custo total de combustível para a viagem
     custo_total = litros_necessarios * preco_combustivel
+    # Custo dividido por viajante
     custo_por_pessoa = custo_total / num_viajantes
 
+    # Retorna valores formatados para exibição na interface
     return {
         "distancia_total": distancia_total,
         "litros_necessarios": formatar_numero(litros_necessarios, " L"),
@@ -40,17 +50,33 @@ def calcular_combustivel(distancia_total, consumo_km_litro, preco_combustivel, n
 def calcular_custos_completos(destino, num_dias, num_viajantes, custo_acomodacao_noite,
                               custo_transporte_total, custo_alimentacao_dia_pessoa,
                               custo_atividades_total, percentual_reserva):
+    # Calcula o orçamento completo da viagem (acomodação, transporte, alimentação e atividades)
+    # - `destino`: string com o nome do destino
+    # - `num_dias`: número de dias da viagem
+    # - `num_viajantes`: quantidade de pessoas
+    # - `custo_acomodacao_noite`: valor do quarto por noite (total)
+    # - `custo_transporte_total`: soma dos custos de transporte (voo, trem etc.)
+    # - `custo_alimentacao_dia_pessoa`: custo médio de alimentação por dia por pessoa
+    # - `custo_atividades_total`: soma dos custos de passeios/atividades
+    # - `percentual_reserva`: percentual de reserva/emergência aplicado ao subtotal
 
+    # Validações: dias e viajantes precisam ser maiores que zero
     if num_dias <= 0 or num_viajantes <= 0:
         return None
 
+    # Total gasto com acomodação (por todas as noites)
     total_acomodacao = custo_acomodacao_noite * num_dias
+    # Total gasto com alimentação (por dia por pessoa * dias * pessoas)
     total_alimentacao = custo_alimentacao_dia_pessoa * num_dias * num_viajantes
 
+    # Subtotal antes da reserva de emergência
     subtotal = total_acomodacao + custo_transporte_total + total_alimentacao + custo_atividades_total
+    # Valor da reserva de emergência em reais
     reserva = subtotal * (percentual_reserva / 100)
+    # Custo final já com a reserva
     custo_total_final = subtotal + reserva
 
+    # Retorna todos os valores já formatados para exibição na UI
     return {
         "destino": destino.upper(),
         "num_dias": num_dias,
